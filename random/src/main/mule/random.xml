@@ -1,0 +1,111 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:tls="http://www.mulesoft.org/schema/mule/tls" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/tls http://www.mulesoft.org/schema/mule/tls/current/mule-tls.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="2dd0d4ae-098f-4caf-ab34-7b0561d38c03" >
+		<http:listener-connection host="localhost" port="8081" />
+	</http:listener-config>
+	<http:request-config name="HTTP_Request_configuration" doc:name="HTTP Request configuration" doc:id="1e56ab77-7b87-45c6-b704-7c331c674215" basePath="https://dzone.com/articles/how-to-use-object-store-in-mule" >
+		<http:request-connection host="https://dzon.com" port="80" />
+	</http:request-config>
+	<flow name="randomFlow" doc:id="f6543e63-9995-4608-b515-1ea2e6cec8f3" >
+		<http:listener doc:name="Listener" doc:id="462ef7be-b508-4d8c-b5b1-8aab59c6ccd7" config-ref="HTTP_Listener_config" path="/random"/>
+		<parallel-foreach doc:name="Parallel for each" doc:id="eaa973e5-8624-4aa3-a4f9-bf63e04e02a7">
+			<try doc:name="Try" doc:id="81c05500-0fe0-4350-8d0c-931730076860">
+			<ee:transform doc:name="Transform Message" doc:id="867c0dc6-1c59-437f-9fb1-2e0efce1f443">
+				<ee:message>
+					<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+				</ee:message>
+			</ee:transform>
+				<logger level="INFO" doc:name="Logger" doc:id="8d7c2fcb-d359-4eea-b7dd-ea13ab980d12" message="#[payload]" />
+				<error-handler>
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="e6e5b171-48c6-4d04-b9c0-ee21e19710a3">
+					<ee:transform doc:name="Transform Message" doc:id="487ca51a-a33b-4aac-af2c-ed131192bad2">
+						<ee:message>
+							<ee:set-payload><![CDATA[%dw 2.0
+output application/json
+---
+"let it be"]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		</parallel-foreach>
+		<ee:transform doc:name="Transform Message" doc:id="d2c1f369-8967-4636-b8a1-42d6b741a89f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+payload]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="51acc237-4a1a-4811-ab63-7a0fe96684a6" >
+				<ee:transform doc:name="Transform Message" doc:id="9ca409e9-dbf9-458f-a3cb-f3f0267dab55" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Error"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+	<sub-flow name="subflow" doc:id="f7ff21be-4044-49d7-9006-f316adc7122e" >
+		<logger level="INFO" doc:name="Logger" doc:id="53ceb9b2-9473-45a6-a737-b8229d6505e5" message="Subflow"/>
+	</sub-flow>
+	<flow name="PrivateFlow" doc:id="8bb7a209-6d01-4151-83a9-34061f6cfea4" >
+		<set-variable value='"Before Try scope"' doc:name="Set Variable" doc:id="c8fbdb33-a239-479a-b875-067f0ebafdb9" variableName="vary"/>
+		<try doc:name="Try" doc:id="9e106c3c-76cb-465d-aaf7-ae2187518452" transactionType="XA">
+			<set-variable value='"after try"' doc:name="Set Variable" doc:id="43cae452-485e-413d-968c-8816ce2abbb6" variableName="vary"/>
+			<http:request method="GET" doc:name="Request" doc:id="bc3b4221-c3f5-4c4f-8ebc-05e7f36b1134" config-ref="HTTP_Request_configuration" path="/goga"/>
+			<error-handler >
+				<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="f1258bdb-4c3a-4285-b5c5-31282bd33c30" >
+					<ee:transform doc:name="Transform Message" doc:id="625f4369-37ca-41d4-b851-55d73eb216c7" >
+						<ee:message >
+							<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"Message" : "Error Occurred",
+"Error" : error.description
+}]]></ee:set-payload>
+						</ee:message>
+					</ee:transform>
+				</on-error-continue>
+			</error-handler>
+		</try>
+		<ee:transform doc:name="Transform Message" doc:id="2acb7ef4-5b4f-427b-80bf-c4ad95c14499" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+"Result": payload,
+"variable" : vars.vary
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<error-handler >
+			<on-error-continue enableNotifications="true" logException="true" doc:name="On Error Continue" doc:id="579dc7d8-aaf1-4f99-9cab-7ec2404e236a" >
+				<ee:transform doc:name="Transform Message" doc:id="89c67560-fedc-47a7-843e-fb81e4a4a97c" >
+					<ee:message >
+						<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+"Error Occurred"]]></ee:set-payload>
+					</ee:message>
+				</ee:transform>
+			</on-error-continue>
+		</error-handler>
+	</flow>
+</mule>
