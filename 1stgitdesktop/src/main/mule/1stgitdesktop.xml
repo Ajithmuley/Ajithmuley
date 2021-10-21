@@ -16,7 +16,7 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 output application/json
 ---
 {
-	"msg" : "Edited 1st Github Desktop proj"
+	"msg" : "Editing 1st transform Msg from Remote"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
