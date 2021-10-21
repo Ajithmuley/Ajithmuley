@@ -26,7 +26,7 @@ output application/json
 output application/json
 ---
 {
-	"updtd" : "msg for Github Desktop2"
+	"updtd" : "Edited from Remote repossitory"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
