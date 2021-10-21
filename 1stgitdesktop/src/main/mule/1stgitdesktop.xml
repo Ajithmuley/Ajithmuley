@@ -16,7 +16,17 @@ http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/
 output application/json
 ---
 {
-	"msg" : "1st Github Desktop proj"
+	"msg" : "Edited 1st Github Desktop proj"
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<ee:transform doc:name="Transform Message" doc:id="a29be1c4-8344-4d2e-8a67-add67568366f" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+output application/json
+---
+{
+	"updtd" : "msg for Github Desktop2"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
