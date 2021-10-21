@@ -26,7 +26,7 @@ output application/json
 output application/json
 ---
 {
-	"updtd" : "Edited from Remote repossitory"
+	"updtd" : "Edited from Remote repository"
 }]]></ee:set-payload>
 			</ee:message>
 		</ee:transform>
